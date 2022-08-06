@@ -2,7 +2,7 @@
 TARGET = 2Cats1Bag
 
 # Sources
-CPP_SOURCES = 2Cats1Bag.cpp
+CPP_SOURCES = 2Cats1Bag.cpp wavefolder.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/

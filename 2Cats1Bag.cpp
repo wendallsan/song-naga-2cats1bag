@@ -1,5 +1,6 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
+#include "wavefolder.h"
 
 using namespace daisy;
 using namespace daisysp;
@@ -8,7 +9,7 @@ DaisySeed hw;
 MidiUsbHandler midi;
 Oscillator modulator;
 VariableShapeOscillator primary;
-Fold fold;
+Wavefolder fold;
 float modulatorFrequencyModAmountAdjust, 
 	modulatorCoarsePitchAdjust, 
 	modulatorFinePitchAdjust, 
@@ -55,10 +56,10 @@ void AudioCallback(
 ){
 	for( size_t i = 0; i < size; i++ ){
 		float modulatorSignal = modulator.Process();
-		float adjustedModulatorSignal = ( modulatorSignal * 2 ) * modulatorFrequencyModAmountAdjust;
+		float adjustedModulatorSignal = modulatorSignal * modulatorFrequencyModAmountAdjust * 10.0;
 		primary.SetSyncFreq( primaryFrequency * ( adjustedModulatorSignal + 1.0 ) );
 
-		float finalSignal = primary.Process();
+
 		// TODO: FOLD!
 		/*
 		Symmetry – Adds an offset to the input so the top half of the wave starts folding earlier.
@@ -70,11 +71,13 @@ void AudioCallback(
 		Chebyshev distortion might be useful to look into. It is doing similar things, emphasizing certain harmonics.
 		http://www.endino.com/archive/arch2.html
 		*/
-		finalSignal = finalSignal + fmap( folderSymmetryAdjust, -1.0, 1.0 );
 		
 		// MAYBE WE NEED TO INCREASE VOLUME INTO THE FOLDER? nope.
 		// finalSignal = finalSignal * ( 1.0 +  ( folderTimbreAdjust * 10.0 ) );
 		
+		
+		float finalSignal = primary.Process();
+		finalSignal = finalSignal + fmap( folderSymmetryAdjust, -1.0, 1.0 );
 		finalSignal = fold.Process( finalSignal );
 		out[0][i] = modulatorSignal;
         out[1][i] = finalSignal;
@@ -210,7 +213,7 @@ int main( void ){
 		);
 
 		// SET THE TIMBRE
-		fold.SetIncrement( 1.0 );
+		fold.SetGain( fmap( folderTimbreAdjust, 1.0, 10.0 ) );
 
 		System::Delay( 1 );
 	}

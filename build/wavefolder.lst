@@ -1,0 +1,205 @@
+ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 1
+
+
+   1              		.cpu cortex-m7
+   2              		.eabi_attribute 28, 1
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 2
+  10              		.eabi_attribute 34, 1
+  11              		.eabi_attribute 18, 4
+  12              		.file	"wavefolder.cpp"
+  13              		.text
+  14              	.Ltext0:
+  15              		.cfi_sections	.debug_frame
+  16              		.section	.text._ZN7daisysp10Wavefolder7SetGainEf,"ax",%progbits
+  17              		.align	1
+  18              		.p2align 2,,3
+  19              		.global	_ZN7daisysp10Wavefolder7SetGainEf
+  20              		.arch armv7e-m
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  24              		.fpu fpv5-d16
+  26              	_ZN7daisysp10Wavefolder7SetGainEf:
+  27              	.LVL0:
+  28              	.LFB3031:
+  29              		.file 1 "wavefolder.cpp"
+   1:wavefolder.cpp **** #include "Wavefolder.h"
+   2:wavefolder.cpp **** #include <algorithm>
+   3:wavefolder.cpp **** 
+   4:wavefolder.cpp **** namespace daisysp
+   5:wavefolder.cpp **** {
+   6:wavefolder.cpp ****     void Wavefolder::SetGain( float gain ){
+  30              		.loc 1 6 43 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+   7:wavefolder.cpp ****         gain_ = gain;
+  35              		.loc 1 7 9 view .LVU1
+  36              		.loc 1 7 15 is_stmt 0 view .LVU2
+  37 0000 80ED000A 		vstr.32	s0, [r0]
+   8:wavefolder.cpp ****     }
+  38              		.loc 1 8 5 view .LVU3
+  39 0004 7047     		bx	lr
+  40              		.cfi_endproc
+  41              	.LFE3031:
+  43 0006 00BF     		.section	.text._ZN7daisysp10Wavefolder4InitEv,"ax",%progbits
+  44              		.align	1
+  45              		.p2align 2,,3
+  46              		.global	_ZN7daisysp10Wavefolder4InitEv
+  47              		.syntax unified
+  48              		.thumb
+  49              		.thumb_func
+  50              		.fpu fpv5-d16
+  52              	_ZN7daisysp10Wavefolder4InitEv:
+ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 2
+
+
+  53              	.LVL1:
+  54              	.LFB3032:
+   9:wavefolder.cpp ****     void Wavefolder::Init(){
+  55              		.loc 1 9 28 is_stmt 1 view -0
+  56              		.cfi_startproc
+  57              		@ args = 0, pretend = 0, frame = 0
+  58              		@ frame_needed = 0, uses_anonymous_args = 0
+  59              		@ link register save eliminated.
+  10:wavefolder.cpp ****         gain_ = 0.0;
+  60              		.loc 1 10 9 view .LVU5
+  61              		.loc 1 10 15 is_stmt 0 view .LVU6
+  62 0000 0023     		movs	r3, #0
+  63 0002 0360     		str	r3, [r0]	@ float
+  11:wavefolder.cpp ****     }
+  64              		.loc 1 11 5 view .LVU7
+  65 0004 7047     		bx	lr
+  66              		.cfi_endproc
+  67              	.LFE3032:
+  69 0006 00BF     		.section	.text._ZN7daisysp10Wavefolder7ProcessEf,"ax",%progbits
+  70              		.align	1
+  71              		.p2align 2,,3
+  72              		.global	_ZN7daisysp10Wavefolder7ProcessEf
+  73              		.syntax unified
+  74              		.thumb
+  75              		.thumb_func
+  76              		.fpu fpv5-d16
+  78              	_ZN7daisysp10Wavefolder7ProcessEf:
+  79              	.LVL2:
+  80              	.LFB3033:
+  12:wavefolder.cpp ****     float Wavefolder::Process( float in ){
+  81              		.loc 1 12 42 is_stmt 1 view -0
+  82              		.cfi_startproc
+  83              		@ args = 0, pretend = 0, frame = 0
+  84              		@ frame_needed = 0, uses_anonymous_args = 0
+  85              		@ link register save eliminated.
+  13:wavefolder.cpp ****         float ft, sgn;
+  86              		.loc 1 13 9 view .LVU9
+  14:wavefolder.cpp ****         in  *= gain_;
+  87              		.loc 1 14 9 view .LVU10
+  88              		.loc 1 14 13 is_stmt 0 view .LVU11
+  89 0000 D0ED007A 		vldr.32	s15, [r0]
+  15:wavefolder.cpp ****         ft  = floorf((in + 1.0f) * 0.5f);
+  90              		.loc 1 15 26 view .LVU12
+  91 0004 B7EE007A 		vmov.f32	s14, #1.0e+0
+  92              		.loc 1 15 21 view .LVU13
+  93 0008 F6EE005A 		vmov.f32	s11, #5.0e-1
+  14:wavefolder.cpp ****         in  *= gain_;
+  94              		.loc 1 14 13 view .LVU14
+  95 000c 20EE270A 		vmul.f32	s0, s0, s15
+  96              	.LVL3:
+  97              		.loc 1 15 9 is_stmt 1 view .LVU15
+  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
+  17:wavefolder.cpp ****         return sgn * (in - 2.0f * ft);
+  98              		.loc 1 17 26 is_stmt 0 view .LVU16
+  99 0010 B0EE006A 		vmov.f32	s12, #2.0e+0
+  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
+ 100              		.loc 1 16 45 view .LVU17
+ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 3
+
+
+ 101 0014 FFEE006A 		vmov.f32	s13, #-1.0e+0
+  15:wavefolder.cpp ****         ft  = floorf((in + 1.0f) * 0.5f);
+ 102              		.loc 1 15 26 view .LVU18
+ 103 0018 70EE077A 		vadd.f32	s15, s0, s14
+  15:wavefolder.cpp ****         ft  = floorf((in + 1.0f) * 0.5f);
+ 104              		.loc 1 15 21 view .LVU19
+ 105 001c 67EEA57A 		vmul.f32	s15, s15, s11
+ 106 0020 FBFE677A 		vrintm.f32	s15, s15
+ 107              	.LVL4:
+  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
+ 108              		.loc 1 16 9 is_stmt 1 view .LVU20
+ 109              		.loc 1 17 26 is_stmt 0 view .LVU21
+ 110 0024 A7EEC60A 		vfms.f32	s0, s15, s12
+ 111              	.LVL5:
+  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
+ 112              		.loc 1 16 15 view .LVU22
+ 113 0028 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 114              	.LVL6:
+  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
+ 115              		.loc 1 16 45 view .LVU23
+ 116 002c 17EE903A 		vmov	r3, s15	@ int
+ 117 0030 13F0010F 		tst	r3, #1
+ 118 0034 07FE267A 		vseleq.f32	s14, s14, s13
+ 119              	.LVL7:
+ 120              		.loc 1 17 9 is_stmt 1 view .LVU24
+  18:wavefolder.cpp ****     }
+ 121              		.loc 1 18 5 is_stmt 0 view .LVU25
+ 122 0038 20EE070A 		vmul.f32	s0, s0, s14
+ 123 003c 7047     		bx	lr
+ 124              		.cfi_endproc
+ 125              	.LFE3033:
+ 127 003e 00BF     		.text
+ 128              	.Letext0:
+ 129              		.file 2 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\machi
+ 130              		.file 3 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\sys\\
+ 131              		.file 4 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\stdin
+ 132              		.file 5 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\lib\\gcc\\arm-none-eabi\\10.2
+ 133              		.file 6 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\\
+ 134              		.file 7 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\\
+ 135              		.file 8 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\\
+ 136              		.file 9 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\\
+ 137              		.file 10 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 138              		.file 11 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 139              		.file 12 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 140              		.file 13 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 141              		.file 14 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 142              		.file 15 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 143              		.file 16 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 144              		.file 17 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 145              		.file 18 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 146              		.file 19 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 147              		.file 20 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 148              		.file 21 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 149              		.file 22 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\sys\
+ 150              		.file 23 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\sys\
+ 151              		.file 24 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\sys\
+ 152              		.file 25 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\math
+ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 4
+
+
+ 153              		.file 26 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\stdl
+ 154              		.file 27 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ 155              		.file 28 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\lib\\gcc\\arm-none-eabi\\10.
+ 156              		.file 29 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\wcha
+ 157              		.file 30 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\loca
+ 158              		.file 31 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\stdi
+ 159              		.file 32 "../../DaisySP//Source/Utility/dsp.h"
+ 160              		.file 33 "Wavefolder.h"
+ 161              		.file 34 "<built-in>"
+ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 5
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 wavefolder.cpp
+C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:17     .text._ZN7daisysp10Wavefolder7SetGainEf:00000000 $t
+C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:26     .text._ZN7daisysp10Wavefolder7SetGainEf:00000000 _ZN7daisysp10Wavefolder7SetGainEf
+C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:44     .text._ZN7daisysp10Wavefolder4InitEv:00000000 $t
+C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:52     .text._ZN7daisysp10Wavefolder4InitEv:00000000 _ZN7daisysp10Wavefolder4InitEv
+C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:70     .text._ZN7daisysp10Wavefolder7ProcessEf:00000000 $t
+C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:78     .text._ZN7daisysp10Wavefolder7ProcessEf:00000000 _ZN7daisysp10Wavefolder7ProcessEf
+
+NO UNDEFINED SYMBOLS
