@@ -10,45 +10,39 @@ MidiUsbHandler midi;
 Oscillator modulator;
 VariableShapeOscillator primary;
 Wavefolder fold;
-float modulatorFrequencyModAmountAdjust, 
-	modulatorCoarsePitchAdjust, 
+float modulatorCoarsePitchAdjust, 
 	modulatorFinePitchAdjust, 
 	modulatorFrequency, 
-	
+	modulatorFrequencyModAmountAdjust,
+	modulatorAmpModAmountAdjust,	
 	primaryCoarsePitchAdjust, 
 	primaryFinePitchAdjust, 
 	primaryFrequency, 
-	primaryWaveshapeAdjust,
-	
+	primaryWaveshapeAdjust,	
+	folderTimbreModAdjust,
 	folderTimbreAdjust,
 	folderSymmetryAdjust,
-
+	ampLevel,
 	twoSemitonesRatio = 0.059463 * 2.0;
-
 int primaryMidiNote = 24,
 	modulatorMidiNote = 24;
-
 enum AdcChannel {
 	primaryCoarsePitchKnob,
 	primaryFinePitchKnob,
-	primaryWaveshapeKnob,
-	
+	primaryWaveshapeKnob,	
 	modulatorCoarsePitchKnob,
 	modulatorFinePitchKnob,
 	modulatorFrequencyModKnob,
-	// modulatorAmpKnob,
-	// modulatorTimbreKnob,
-
+	modulatorAmpKnob,
+	modulatorTimbreModKnob,
 	folderTimbreKnob,
 	folderSymmetryKnob,
-
 	NUM_ADC_CHANNELS
 };
-
 Switch primaryWaveSelectButton, 
 	modulatorWaveSelectButton, 
-	modulatorRangeSelectButton;
-
+	modulatorRangeSelectButton,
+	syncSelectButton;
 void AudioCallback(
 	AudioHandle::InputBuffer in,
     AudioHandle::OutputBuffer out,
@@ -56,13 +50,12 @@ void AudioCallback(
 ){
 	for( size_t i = 0; i < size; i++ ){
 		float modulatorSignal = modulator.Process();
-		float adjustedModulatorSignal = modulatorSignal * modulatorFrequencyModAmountAdjust * 10.0;
-		primary.SetSyncFreq( primaryFrequency * ( adjustedModulatorSignal + 1.0 ) );
+		float frequencyModSignal = modulatorSignal * modulatorFrequencyModAmountAdjust * 10.0;
+		// TODO: DO WE WANT TO PUSH THE AMP AT ALL? ( fmap( modulatorAmpModAmountAdjust, 0.0, 1.2 ) )
+		float ampModSignal = modulatorSignal * modulatorAmpModAmountAdjust;
+		primary.SetSyncFreq( primaryFrequency * ( frequencyModSignal + 1.0 ) );
 
-
-		// TODO: FOLD!
-		/*
-		Symmetry – Adds an offset to the input so the top half of the wave starts folding earlier.
+		/* TODO: HARMONICS!
 		Harmonics - A square wave has all odd harmonics. A saw wave has all harmonics. Subtract a square wave from 
 		a saw wave and you get all even harmonics. You can add odd harmonics to a signal by clipping the 
 		tops and bottoms of the input (making it more square). So if you clip the input you are 
@@ -71,16 +64,18 @@ void AudioCallback(
 		Chebyshev distortion might be useful to look into. It is doing similar things, emphasizing certain harmonics.
 		http://www.endino.com/archive/arch2.html
 		*/
+		// TODO: EFFECTS OF PLACING AMP BEFORE WAVEFOLDER VS AFTER?
 		
-		// MAYBE WE NEED TO INCREASE VOLUME INTO THE FOLDER? nope.
-		// finalSignal = finalSignal * ( 1.0 +  ( folderTimbreAdjust * 10.0 ) );
-		
-		
-		float finalSignal = primary.Process();
-		finalSignal = finalSignal + fmap( folderSymmetryAdjust, -1.0, 1.0 );
-		finalSignal = fold.Process( finalSignal );
-		out[0][i] = modulatorSignal;
-        out[1][i] = finalSignal;
+		// SET finalFold ACCORDING TO FOLD KNOB POSITION AND FOLD MOD
+		float finalFold = folderTimbreAdjust + ( (  folderTimbreModAdjust / 2.0 ) * modulatorSignal ) ;
+		finalFold = fmap( finalFold, 1.0, 10.0 ); // MAP finalFold TO A RANGE BETWEEN 1 AND 10
+		fold.SetGain( finalFold ); // SET FOLD GAIN		
+		float finalSignal = primary.Process(); // GET THE PRIMARY OSC SIGNAL
+		finalSignal = finalSignal * ( ampModSignal + 0.5 ); // MODIFY AMPLITUDE ACCORDING TO AMP MOD
+		finalSignal = finalSignal + fmap( folderSymmetryAdjust, -1.0, 1.0 ); // OFFSET SIGNAL ACCORDING TO SYMMETRY
+		finalSignal = fold.Process( finalSignal ); // MODIFY THROUGH WAVEFOLDER
+		out[0][i] = modulatorSignal; // SEND THE MODULATOR SIGNAL TO OUTPUT 1
+        out[1][i] = finalSignal; // SEND THE PRIMARYSIGNAL TO OUTPUT 2
 	}
 }
 
@@ -106,115 +101,95 @@ void handleMidi(){
 }
 
 void handleKnobs(){
-	// GET KNOB POSITIONS
 	modulatorCoarsePitchAdjust = hw.adc.GetFloat( modulatorCoarsePitchKnob );
 	modulatorFinePitchAdjust = hw.adc.GetFloat( modulatorFinePitchKnob );
 	modulatorFrequencyModAmountAdjust = hw.adc.GetFloat( modulatorFrequencyModKnob );
-
+	modulatorAmpModAmountAdjust = hw.adc.GetFloat( modulatorAmpKnob );
 	primaryCoarsePitchAdjust = hw.adc.GetFloat( primaryCoarsePitchKnob );
 	primaryFinePitchAdjust = hw.adc.GetFloat( primaryFinePitchKnob );
 	primaryWaveshapeAdjust = hw.adc.GetFloat( primaryWaveshapeKnob );
-
 	folderTimbreAdjust = hw.adc.GetFloat( folderTimbreKnob );
 	folderSymmetryAdjust = hw.adc.GetFloat( folderSymmetryKnob );
-	
+	folderTimbreModAdjust = hw.adc.GetFloat( modulatorTimbreModKnob );	
 }
-
+float setCoarseFrequency( float baseFrequency, float adjust ){ // COARSE ADJUST THE FREQUENCY BY +/- 2 OCTAVES
+	return fmap( adjust,  baseFrequency / 4.0, baseFrequency * 4.0 );
+}
+float setFineFrequency( float baseFrequency, float adjust ){ // FINE ADJUST THE FREQUENCY BY +/- 2 SEMITONES
+	return  fmap(
+		adjust, 
+		baseFrequency - ( baseFrequency * twoSemitonesRatio ), 
+		baseFrequency + ( baseFrequency * twoSemitonesRatio )
+	);
+}
 void setPrimaryFrequency(){  // CALCULATE AND SET PRIMARY FREQUENCY
-		primaryFrequency = mtof( primaryMidiNote ); // GET FREQUENCY FROM MIDI NOTE
-		primaryFrequency = fmap( // COARSE ADJUST THE FREQUENCY UP OR DOWN BY 2 OCTAVES 
-			primaryCoarsePitchAdjust, 
-			primaryFrequency / 4.0, 
-			primaryFrequency * 4.0
-		);
-		primaryFrequency = fmap( // FINE ADJUST THE FREQUENCY UP OR DOWN BY 2 SEMITONES
-			primaryFinePitchAdjust, 
-			primaryFrequency - ( primaryFrequency * twoSemitonesRatio ), 
-			primaryFrequency + ( primaryFrequency * twoSemitonesRatio )
-		);
+	primaryFrequency = setCoarseFrequency( mtof( primaryMidiNote ), primaryCoarsePitchAdjust );
+	primaryFrequency = setFineFrequency ( primaryFrequency, primaryFinePitchAdjust );
 }
-
 void setModulatorFrequency(){ // CALCULATE AND SET MODULATOR FREQUENCY
-		if( !modulatorRangeSelectButton.Pressed() ){ // SET FREQUENCY COARSE KNOB RANGE TO 0.05 - 10 HZ
-			// IGNORE MIDI NOTE IN FOR LFO-Y STUFF (??)
-			modulatorFrequency = fmap( modulatorCoarsePitchAdjust, 0.05, 10 );		
-		} else { // SET FREQUENCY TO MIDI NOTE AND COARSE KNOBS
-			modulatorFrequency = mtof( modulatorMidiNote ); // GET FREQUENCY FROM MIDI NOTE
-			modulatorFrequency = fmap( // COARSE ADJUST THE FREQUENCY BY +/- 2 OCTAVES 
-				modulatorCoarsePitchAdjust, 
-				modulatorFrequency / 4.0, 
-				modulatorFrequency * 4.0
-			);
-		}
-		modulatorFrequency = fmap( // FINE ADJUST THE FREQUENCY BY +/- 2 SEMITONES
-			modulatorFinePitchAdjust, 
-			modulatorFrequency - ( modulatorFrequency * twoSemitonesRatio ), 
-			modulatorFrequency + ( modulatorFrequency * twoSemitonesRatio )
-		);
-		modulator.SetFreq( modulatorFrequency );		
+	// IF RANGE IS LFO, IGNORE MIDI AND MAP THE COARSE AND FINE KNOBS TO A RANGE OF 0.05 - 20HZ
+	if( !modulatorRangeSelectButton.Pressed() )
+		modulatorFrequency = fmap( modulatorCoarsePitchAdjust, 0.05, 20 );		
+	else // ELSE SET FREQUENCY TO MIDI NOTE, COARSE, AND FINE KNOBS
+		modulatorFrequency = setCoarseFrequency(  mtof( modulatorMidiNote ), modulatorCoarsePitchAdjust );
+	modulator.SetFreq( modulatorFrequency );
+	// ALSO SET FREQUENCY ON PRIMARY OSC FOR SYNC PURPOSES
+	// NOTE THAT WE DON'T HEAR THIS OSCILLATOR, WE JUST HEAR THE 
+	// OSCILLATOR WHOSE FREQ IS SET USING THE SetSyncFreq METHOD
+	// ( THIS IS DONE IN THE AUDIOCALLBACK )
+	primary.SetFreq( modulatorFrequency );	
 }
-
+void debounceButtons(){
+	modulatorRangeSelectButton.Debounce();
+	modulatorWaveSelectButton.Debounce();
+	primaryWaveSelectButton.Debounce(); 
+	syncSelectButton.Debounce();
+}
 int main( void ){
 	hw.Configure();
 	hw.Init();
 	modulatorRangeSelectButton.Init( hw.GetPin( 26 ), 100 );
 	modulatorWaveSelectButton.Init( hw.GetPin( 27 ), 100 );
 	primaryWaveSelectButton.Init( hw.GetPin( 28 ), 100 );
+	syncSelectButton.Init( hw.GetPin( 29 ), 100 );
 
 	MidiUsbHandler::Config midiConfig;
     midiConfig.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
     midi.Init( midiConfig );
 	hw.SetAudioSampleRate( SaiHandle::Config::SampleRate::SAI_48KHZ );
 	float sampleRate = hw.AudioSampleRate();
-
 	primary.Init( sampleRate );
     modulator.Init( sampleRate );
-
 	hw.StartAudio( AudioCallback );
-
 	AdcChannelConfig adcConfig[ NUM_ADC_CHANNELS ];
-
     adcConfig[ modulatorCoarsePitchKnob ].InitSingle( daisy::seed::A0 );
     adcConfig[ modulatorFinePitchKnob ].InitSingle( daisy::seed::A1 );
     adcConfig[ modulatorFrequencyModKnob ].InitSingle( daisy::seed::A2 );
-
     adcConfig[ primaryCoarsePitchKnob ].InitSingle( daisy::seed::A3 );
     adcConfig[ primaryFinePitchKnob ].InitSingle( daisy::seed::A4 );
     adcConfig[ primaryWaveshapeKnob ].InitSingle( daisy::seed::A5 );
-	
+	adcConfig[ modulatorAmpKnob ].InitSingle( daisy::seed::A8 );
     adcConfig[ folderTimbreKnob ].InitSingle( daisy::seed::A6 );
     adcConfig[ folderSymmetryKnob ].InitSingle( daisy::seed::A7 );
-
+    adcConfig[ modulatorTimbreModKnob ].InitSingle( daisy::seed::A9 );
     hw.adc.Init( adcConfig, NUM_ADC_CHANNELS );
     hw.adc.Start();
-
 	while( true ){
-		// DEBOUNCE THE BUTTONS BEFORE WE USE THEM
-		modulatorRangeSelectButton.Debounce();
-		modulatorWaveSelectButton.Debounce();
-		primaryWaveSelectButton.Debounce(); 
-
+		debounceButtons();
 		handleMidi();
-		handleKnobs();
-		
+		handleKnobs();		
 		// SET PRIMARY PULSEWIDTH / WAVESHAPE
 		primary.SetPW( primaryWaveSelectButton.Pressed()? fmap( primaryWaveshapeAdjust, 0.2, 0.8 ) : primaryWaveshapeAdjust );
-
+		primary.SetSync( syncSelectButton.Pressed() );
 		setModulatorFrequency();
 		setPrimaryFrequency();
-
-		// SET THE WAVEFORM ACCORDING TO THE BUTTON STATE
+		// SET THE PRIMARY WAVEFORM ACCORDING TO THE BUTTON STATE
 		primary.SetWaveshape( primaryWaveSelectButton.Pressed()? 1.0 : 0.0 );		
-		
-		// SET THE WAVEFORM ACCORDING TO THE BUTTON STATE
+		// SET THE MODULATOR WAVEFORM ACCORDING TO THE BUTTON STATE
 		modulator.SetWaveform( modulatorWaveSelectButton.Pressed()? 
 			modulator.WAVE_SIN : 
 			modulator.WAVE_POLYBLEP_TRI 
 		);
-
-		// SET THE TIMBRE
-		fold.SetGain( fmap( folderTimbreAdjust, 1.0, 10.0 ) );
-
 		System::Delay( 1 );
 	}
 }
