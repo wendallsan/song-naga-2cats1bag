@@ -51,22 +51,8 @@ void AudioCallback(
 	for( size_t i = 0; i < size; i++ ){
 		float modulatorSignal = modulator.Process();
 		float frequencyModSignal = modulatorSignal * modulatorFrequencyModAmountAdjust * 10.0;
-		// TODO: DO WE WANT TO PUSH THE AMP AT ALL? ( fmap( modulatorAmpModAmountAdjust, 0.0, 1.2 ) )
 		float ampModSignal = modulatorSignal * modulatorAmpModAmountAdjust;
 		primary.SetSyncFreq( primaryFrequency * ( frequencyModSignal + 1.0 ) );
-
-		/* TODO: HARMONICS!
-		Harmonics - A square wave has all odd harmonics. A saw wave has all harmonics. Subtract a square wave from 
-		a saw wave and you get all even harmonics. You can add odd harmonics to a signal by clipping the 
-		tops and bottoms of the input (making it more square). So if you clip the input you are 
-		emphasizing odd harmonics, and if you take that clipped signal and subtract it from the input 
-		you get an emphasis on even harmonics.  
-		Chebyshev distortion might be useful to look into. It is doing similar things, emphasizing certain harmonics.
-		http://www.endino.com/archive/arch2.html
-		*/
-		// TODO: EFFECTS OF PLACING AMP BEFORE WAVEFOLDER VS AFTER?
-		
-		// SET finalFold ACCORDING TO FOLD KNOB POSITION AND FOLD MOD
 		float finalFold = folderTimbreAdjust + ( (  folderTimbreModAdjust / 2.0 ) * modulatorSignal ) ;
 		finalFold = fmap( finalFold, 1.0, 10.0 ); // MAP finalFold TO A RANGE BETWEEN 1 AND 10
 		fold.SetGain( finalFold ); // SET FOLD GAIN		
@@ -78,9 +64,7 @@ void AudioCallback(
         out[1][i] = finalSignal; // SEND THE PRIMARYSIGNAL TO OUTPUT 2
 	}
 }
-
 void handleMidi(){
-	// GET MIDI NOTE NUMBER
 	midi.Listen();
 	while( midi.HasEvents() ){
 		auto midiEvent = midi.PopEvent();
@@ -94,8 +78,7 @@ void handleMidi(){
 					default: 
 						primaryMidiNote = noteMessage.note;
 				}
-			}			
-			// TODO: ADD CC CONTROLS FOR KNOBS AND STUFF
+			}
 		}
 	}
 }
@@ -186,9 +169,10 @@ int main( void ){
 		// SET THE PRIMARY WAVEFORM ACCORDING TO THE BUTTON STATE
 		primary.SetWaveshape( primaryWaveSelectButton.Pressed()? 1.0 : 0.0 );		
 		// SET THE MODULATOR WAVEFORM ACCORDING TO THE BUTTON STATE
+		// BUG: DAISY OVERLOADS IN LFO MODE AT THE LOWEST SETTINGS WHEN FM MOD IS TURNED UP HIGH
 		modulator.SetWaveform( modulatorWaveSelectButton.Pressed()? 
-			modulator.WAVE_SIN : 
-			modulator.WAVE_POLYBLEP_TRI 
+			modulator.WAVE_SIN :
+			modulator.WAVE_POLYBLEP_TRI
 		);
 		System::Delay( 1 );
 	}
