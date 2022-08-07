@@ -29,24 +29,24 @@ Both the Modulator and Primary Oscillators share the following features:
 
 ### Modulator Oscillator  
 
-**MIDI Control** - the Modulator accepts MIDI data on any MIDI channel except 2 when the Range Switch is not in LFO mode.  
-**Range Switch** - switches between audio-rate mode and LFO mode.  LFO mode rate ranges from 0.05 - 20Hz and incoming MIDI data is ignored.  
-**Wave Select Switch** - switches the Modulator Oscillator's waveform between sine and triangle waveforms
-**Frequency Mod Knob** - adjusts the amount of modulation of the frequency of the Primary Oscillator
-**Amp Mod Knob** - adjusts the amount of modulation of the amplifier
-**Timbre Mode Knob** - adjusts the amount of modulation of the wavefolder  
+- **MIDI Control** - the Modulator accepts MIDI data on any MIDI channel except 2 when the Range Switch is not in LFO mode.  
+- **Range Switch** - switches between audio-rate mode and LFO mode.  LFO mode rate ranges from 0.05 - 20Hz and incoming MIDI data is ignored.  
+- **Wave Select Switch** - switches the Modulator Oscillator's waveform between sine and triangle waveforms
+- **Frequency Mod Knob** - adjusts the amount of modulation of the frequency of the Primary Oscillator
+- **Amp Mod Knob** - adjusts the amount of modulation of the amplifier
+- **Timbre Mode Knob** - adjusts the amount of modulation of the wavefolder  
 
 ### Primary Oscillator  
 
-**MIDI Control** - the Modulator accepts MIDI data on channel 2  
-**Wave Select Switch** - switches the Primary Oscillator's waveform between triangle-like and square-like waveforms
-**Waveshape Knob** - changes the shape of the waveform between Saw / Triangle / Ramp when the Primary Oscillator's Wave Select Switch is set to triangle, or changes the pulse width of the squarewave when the Wave Select Switch is set to square.  
-**Sync Switch** - hard syncs the Primary Oscillator to the Modulator Oscillator when enabled  
+- **MIDI Control** - the Modulator accepts MIDI data on channel 2  
+- **Wave Select Switch** - switches the Primary Oscillator's waveform between triangle-like and square-like waveforms
+- **Waveshape Knob** - changes the shape of the waveform between Saw / Triangle / Ramp when the Primary Oscillator's Wave Select Switch is set to triangle, or changes the pulse width of the squarewave when the Wave Select Switch is set to square.  
+- **Sync Switch** - hard syncs the Primary Oscillator to the Modulator Oscillator when enabled  
 
 ### Wavefolder   
 
-**Timbre Knob** - adjusts the amount of wavefolding applied to the output of the Primary Oscillator  
-**Symmetry Knob** - adjusts the offset of Primary Oscillator before it is sent into the wavefolder  
+- **Timbre Knob** - adjusts the amount of wavefolding applied to the output of the Primary Oscillator  
+- **Symmetry Knob** - adjusts the offset of Primary Oscillator before it is sent into the wavefolder  
 
 ## Current Status of Project  
 
