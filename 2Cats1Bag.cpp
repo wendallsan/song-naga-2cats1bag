@@ -24,8 +24,8 @@ float modulatorCoarsePitchAdjust,
 	folderSymmetryAdjust,
 	ampLevel,
 	twoSemitonesRatio = 0.059463 * 2.0;
-int primaryMidiNote = 24,
-	modulatorMidiNote = 24;
+int primaryMidiNote = 36,
+	modulatorMidiNote = 36;
 enum AdcChannel {
 	primaryCoarsePitchKnob,
 	primaryFinePitchKnob,
@@ -45,14 +45,14 @@ Switch primaryWaveSelectButton,
 	syncSelectButton;
 void AudioCallback(
 	AudioHandle::InputBuffer in,
-    AudioHandle::OutputBuffer out,
-    size_t size
+	AudioHandle::OutputBuffer out,
+	size_t size
 ){
 	for( size_t i = 0; i < size; i++ ){
 		float modulatorSignal = modulator.Process();
 		float frequencyModSignal = modulatorSignal * modulatorFrequencyModAmountAdjust * 10.0;
 		float ampModSignal = modulatorSignal * modulatorAmpModAmountAdjust;
-		primary.SetSyncFreq( primaryFrequency * ( frequencyModSignal + 1.0 ) );
+		primary.SetSyncFreq( fclamp( primaryFrequency * ( frequencyModSignal + 1.0 ), 0.01, 20000.0  ) );
 		float finalFold = folderTimbreAdjust + ( (  folderTimbreModAdjust / 2.0 ) * modulatorSignal ) ;
 		finalFold = fmap( finalFold, 1.0, 10.0 ); // MAP finalFold TO A RANGE BETWEEN 1 AND 10
 		fold.SetGain( finalFold ); // SET FOLD GAIN		
@@ -61,7 +61,7 @@ void AudioCallback(
 		finalSignal = finalSignal + fmap( folderSymmetryAdjust, -1.0, 1.0 ); // OFFSET SIGNAL ACCORDING TO SYMMETRY
 		finalSignal = fold.Process( finalSignal ); // MODIFY THROUGH WAVEFOLDER
 		out[0][i] = modulatorSignal; // SEND THE MODULATOR SIGNAL TO OUTPUT 1
-        out[1][i] = finalSignal; // SEND THE PRIMARYSIGNAL TO OUTPUT 2
+		out[1][i] = finalSignal; // SEND THE PRIMARYSIGNAL TO OUTPUT 2
 	}
 }
 void handleMidi(){
@@ -82,7 +82,6 @@ void handleMidi(){
 		}
 	}
 }
-
 void handleKnobs(){
 	modulatorCoarsePitchAdjust = hw.adc.GetFloat( modulatorCoarsePitchKnob );
 	modulatorFinePitchAdjust = hw.adc.GetFloat( modulatorFinePitchKnob );
@@ -114,7 +113,7 @@ void setModulatorFrequency(){ // CALCULATE AND SET MODULATOR FREQUENCY
 	if( !modulatorRangeSelectButton.Pressed() )
 		modulatorFrequency = fmap( modulatorCoarsePitchAdjust, 0.05, 20 );		
 	else // ELSE SET FREQUENCY TO MIDI NOTE, COARSE, AND FINE KNOBS
-		modulatorFrequency = setCoarseFrequency(  mtof( modulatorMidiNote ), modulatorCoarsePitchAdjust );
+		modulatorFrequency = setCoarseFrequency( mtof( modulatorMidiNote ), modulatorCoarsePitchAdjust );
 	modulator.SetFreq( modulatorFrequency );
 	// ALSO SET FREQUENCY ON PRIMARY OSC FOR SYNC PURPOSES
 	// NOTE THAT WE DON'T HEAR THIS OSCILLATOR, WE JUST HEAR THE 
@@ -135,14 +134,13 @@ int main( void ){
 	modulatorWaveSelectButton.Init( hw.GetPin( 27 ), 100 );
 	primaryWaveSelectButton.Init( hw.GetPin( 28 ), 100 );
 	syncSelectButton.Init( hw.GetPin( 29 ), 100 );
-
 	MidiUsbHandler::Config midiConfig;
-    midiConfig.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
+	midiConfig.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
     midi.Init( midiConfig );
 	hw.SetAudioSampleRate( SaiHandle::Config::SampleRate::SAI_48KHZ );
 	float sampleRate = hw.AudioSampleRate();
 	primary.Init( sampleRate );
-    modulator.Init( sampleRate );
+	modulator.Init( sampleRate );
 	hw.StartAudio( AudioCallback );
 	AdcChannelConfig adcConfig[ NUM_ADC_CHANNELS ];
     adcConfig[ modulatorCoarsePitchKnob ].InitSingle( daisy::seed::A0 );
@@ -169,7 +167,6 @@ int main( void ){
 		// SET THE PRIMARY WAVEFORM ACCORDING TO THE BUTTON STATE
 		primary.SetWaveshape( primaryWaveSelectButton.Pressed()? 1.0 : 0.0 );		
 		// SET THE MODULATOR WAVEFORM ACCORDING TO THE BUTTON STATE
-		// BUG: DAISY OVERLOADS IN LFO MODE AT THE LOWEST SETTINGS WHEN FM MOD IS TURNED UP HIGH
 		modulator.SetWaveform( modulatorWaveSelectButton.Pressed()? 
 			modulator.WAVE_SIN :
 			modulator.WAVE_POLYBLEP_TRI
