@@ -54,9 +54,7 @@ Both the Modulator and Primary Oscillators share the following features:
 All basic features are implemented except for implementing the planned Harmonics Knob in he wavefolder and adding CV inputs and their related attenuators/attenuverters.  These will require some hardware that I don't have on hand yet to translate Eurorack-level control voltages to the range used by the Daisy Seed.  
 
 ## Yet to Implement  
-
-Eurorack-compatible CV input is planned, and are documented in the wiki.  
-
-The Harmonics processor has not been implemented yet.
-
-An overhaul of the Primary Oscillator's waveshape feature is planned, and is documented in the wiki.
+- Eurorack-compatible CV input is planned, and are documented in the wiki.  
+- The Harmonics processor has not been implemented yet.  
+- An overhaul of the Primary Oscillator's waveshape feature is planned, and is documented in the wiki.  
+- Tuning knob ranges and responses to elicit musically-oriented/pleasing sounding results.  
