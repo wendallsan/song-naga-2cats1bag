@@ -7,7 +7,7 @@
 
 A Complex Oscillator for the Daisy Seed DSP platform, inspired by the Buchla 259.    
 
-![Panel Concept](https://user-images.githubusercontent.com/1865305/183777348-6568aea2-fa23-4205-97e1-b7028e617d72.png)
+![Panel Concept](https://songnaga.dansteeby.com/wp-content/uploads/2022/08/panel-concept.png)  
 Panel Concept Artwork, laid out to use the [Simple musical instrument design platform](https://www.synthux.academy/simple).  
 
 This is a robust complex oscillator that provides an amazing range of sonic vistas through a Modulator that can affect the Primary Oscillator's frequency, sync, amplitude and wavefolding.  
