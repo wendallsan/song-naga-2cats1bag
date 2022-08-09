@@ -42,6 +42,7 @@ Both the Modulator and Primary Oscillators share the following features:
 - **Wave Select Switch** - switches the Primary Oscillator's waveform between triangle-like and square-like waveforms
 - **Waveshape Knob** - changes the shape of the waveform between Saw / Triangle / Ramp when the Primary Oscillator's Wave Select Switch is set to triangle, or changes the pulse width of the squarewave when the Wave Select Switch is set to square.  
 - **Sync Switch** - hard syncs the Primary Oscillator to the Modulator Oscillator when enabled  
+- **Chaos Knob!!!** - adjusts the amount of modulation sent from the Primary Oscillator to the Modulator Oscillator
 
 ### Wavefolder   
 

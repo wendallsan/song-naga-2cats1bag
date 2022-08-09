@@ -1,4 +1,4 @@
-ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 1
+ARM GAS  C:\Users\danst\AppData\Local\Temp\cc7L360B.s 			page 1
 
 
    1              		.cpu cortex-m7
@@ -58,7 +58,7 @@ ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 1
   49              		.thumb_func
   50              		.fpu fpv5-d16
   52              	_ZN7daisysp10Wavefolder4InitEv:
-ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 2
+ARM GAS  C:\Users\danst\AppData\Local\Temp\cc7L360B.s 			page 2
 
 
   53              	.LVL1:
@@ -98,56 +98,64 @@ ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 1
   85              		@ link register save eliminated.
   13:wavefolder.cpp ****         float ft, sgn;
   86              		.loc 1 13 9 view .LVU9
-  14:wavefolder.cpp ****         in  *= gain_;
+  14:wavefolder.cpp ****         in  *= gain_; // MULTIPLY IN BY GAIN
   87              		.loc 1 14 9 view .LVU10
   88              		.loc 1 14 13 is_stmt 0 view .LVU11
   89 0000 D0ED007A 		vldr.32	s15, [r0]
-  15:wavefolder.cpp ****         ft  = floorf((in + 1.0f) * 0.5f);
-  90              		.loc 1 15 26 view .LVU12
+  15:wavefolder.cpp ****         ft  = floorf( ( in + 1.0f ) * 0.5f );
+  90              		.loc 1 15 28 view .LVU12
   91 0004 B7EE007A 		vmov.f32	s14, #1.0e+0
   92              		.loc 1 15 21 view .LVU13
   93 0008 F6EE005A 		vmov.f32	s11, #5.0e-1
-  14:wavefolder.cpp ****         in  *= gain_;
+  14:wavefolder.cpp ****         in  *= gain_; // MULTIPLY IN BY GAIN
   94              		.loc 1 14 13 view .LVU14
   95 000c 20EE270A 		vmul.f32	s0, s0, s15
   96              	.LVL3:
   97              		.loc 1 15 9 is_stmt 1 view .LVU15
-  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
-  17:wavefolder.cpp ****         return sgn * (in - 2.0f * ft);
-  98              		.loc 1 17 26 is_stmt 0 view .LVU16
+  16:wavefolder.cpp ****         //    ^ ROUNDS DOWN TO NEAREST WHOLE NUMBER VALUE
+  17:wavefolder.cpp ****                         
+  18:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
+  19:wavefolder.cpp ****         //    ^ CONVERTS ft TO AN INT
+  20:wavefolder.cpp ****         //                         ^ IS ft MODULUS 2 IS ZERO?
+  21:wavefolder.cpp ****         //                                    ^ EITHER +/- 1.0
+ARM GAS  C:\Users\danst\AppData\Local\Temp\cc7L360B.s 			page 3
+
+
+  22:wavefolder.cpp ****         return sgn * (in - 2.0f * ft);
+  98              		.loc 1 22 26 is_stmt 0 view .LVU16
   99 0010 B0EE006A 		vmov.f32	s12, #2.0e+0
-  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
- 100              		.loc 1 16 45 view .LVU17
-ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 3
-
-
+  18:wavefolder.cpp ****         //    ^ CONVERTS ft TO AN INT
+ 100              		.loc 1 18 45 view .LVU17
  101 0014 FFEE006A 		vmov.f32	s13, #-1.0e+0
-  15:wavefolder.cpp ****         ft  = floorf((in + 1.0f) * 0.5f);
- 102              		.loc 1 15 26 view .LVU18
+  15:wavefolder.cpp ****         ft  = floorf( ( in + 1.0f ) * 0.5f );
+ 102              		.loc 1 15 28 view .LVU18
  103 0018 70EE077A 		vadd.f32	s15, s0, s14
-  15:wavefolder.cpp ****         ft  = floorf((in + 1.0f) * 0.5f);
+  15:wavefolder.cpp ****         ft  = floorf( ( in + 1.0f ) * 0.5f );
  104              		.loc 1 15 21 view .LVU19
  105 001c 67EEA57A 		vmul.f32	s15, s15, s11
  106 0020 FBFE677A 		vrintm.f32	s15, s15
  107              	.LVL4:
-  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
- 108              		.loc 1 16 9 is_stmt 1 view .LVU20
- 109              		.loc 1 17 26 is_stmt 0 view .LVU21
+  18:wavefolder.cpp ****         //    ^ CONVERTS ft TO AN INT
+ 108              		.loc 1 18 9 is_stmt 1 view .LVU20
+ 109              		.loc 1 22 26 is_stmt 0 view .LVU21
  110 0024 A7EEC60A 		vfms.f32	s0, s15, s12
  111              	.LVL5:
-  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
- 112              		.loc 1 16 15 view .LVU22
+  18:wavefolder.cpp ****         //    ^ CONVERTS ft TO AN INT
+ 112              		.loc 1 18 15 view .LVU22
  113 0028 FDEEE77A 		vcvt.s32.f32	s15, s15
  114              	.LVL6:
-  16:wavefolder.cpp ****         sgn = static_cast<int>(ft) % 2 == 0 ? 1.0f : -1.0f;
- 115              		.loc 1 16 45 view .LVU23
+  18:wavefolder.cpp ****         //    ^ CONVERTS ft TO AN INT
+ 115              		.loc 1 18 45 view .LVU23
  116 002c 17EE903A 		vmov	r3, s15	@ int
  117 0030 13F0010F 		tst	r3, #1
  118 0034 07FE267A 		vseleq.f32	s14, s14, s13
  119              	.LVL7:
- 120              		.loc 1 17 9 is_stmt 1 view .LVU24
-  18:wavefolder.cpp ****     }
- 121              		.loc 1 18 5 is_stmt 0 view .LVU25
+ 120              		.loc 1 22 9 is_stmt 1 view .LVU24
+  23:wavefolder.cpp ****         //     ^ IS EITHER +/- 1.0
+  24:wavefolder.cpp ****         //            ^ in -2.0f = [-1.0...0.0]
+  25:wavefolder.cpp **** 
+  26:wavefolder.cpp ****     }
+ 121              		.loc 1 26 5 is_stmt 0 view .LVU25
  122 0038 20EE070A 		vmul.f32	s0, s0, s14
  123 003c 7047     		bx	lr
  124              		.cfi_endproc
@@ -170,6 +178,9 @@ ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 1
  142              		.file 15 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
  143              		.file 16 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
  144              		.file 17 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
+ARM GAS  C:\Users\danst\AppData\Local\Temp\cc7L360B.s 			page 4
+
+
  145              		.file 18 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
  146              		.file 19 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
  147              		.file 20 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
@@ -178,9 +189,6 @@ ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 1
  150              		.file 23 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\sys\
  151              		.file 24 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\sys\
  152              		.file 25 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\math
-ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 4
-
-
  153              		.file 26 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\stdl
  154              		.file 27 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\arm-none-eabi\\include\\c++\
  155              		.file 28 "c:\\users\\danst\\documents\\daisytoolchain-0.3.3\\windows\\lib\\gcc\\arm-none-eabi\\10.
@@ -190,16 +198,16 @@ ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 1
  159              		.file 32 "../../DaisySP//Source/Utility/dsp.h"
  160              		.file 33 "Wavefolder.h"
  161              		.file 34 "<built-in>"
-ARM GAS  C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s 			page 5
+ARM GAS  C:\Users\danst\AppData\Local\Temp\cc7L360B.s 			page 5
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 wavefolder.cpp
-C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:17     .text._ZN7daisysp10Wavefolder7SetGainEf:00000000 $t
-C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:26     .text._ZN7daisysp10Wavefolder7SetGainEf:00000000 _ZN7daisysp10Wavefolder7SetGainEf
-C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:44     .text._ZN7daisysp10Wavefolder4InitEv:00000000 $t
-C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:52     .text._ZN7daisysp10Wavefolder4InitEv:00000000 _ZN7daisysp10Wavefolder4InitEv
-C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:70     .text._ZN7daisysp10Wavefolder7ProcessEf:00000000 $t
-C:\Users\danst\AppData\Local\Temp\ccG7Nx7p.s:78     .text._ZN7daisysp10Wavefolder7ProcessEf:00000000 _ZN7daisysp10Wavefolder7ProcessEf
+C:\Users\danst\AppData\Local\Temp\cc7L360B.s:17     .text._ZN7daisysp10Wavefolder7SetGainEf:00000000 $t
+C:\Users\danst\AppData\Local\Temp\cc7L360B.s:26     .text._ZN7daisysp10Wavefolder7SetGainEf:00000000 _ZN7daisysp10Wavefolder7SetGainEf
+C:\Users\danst\AppData\Local\Temp\cc7L360B.s:44     .text._ZN7daisysp10Wavefolder4InitEv:00000000 $t
+C:\Users\danst\AppData\Local\Temp\cc7L360B.s:52     .text._ZN7daisysp10Wavefolder4InitEv:00000000 _ZN7daisysp10Wavefolder4InitEv
+C:\Users\danst\AppData\Local\Temp\cc7L360B.s:70     .text._ZN7daisysp10Wavefolder7ProcessEf:00000000 $t
+C:\Users\danst\AppData\Local\Temp\cc7L360B.s:78     .text._ZN7daisysp10Wavefolder7ProcessEf:00000000 _ZN7daisysp10Wavefolder7ProcessEf
 
 NO UNDEFINED SYMBOLS
