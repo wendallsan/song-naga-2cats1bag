@@ -12,6 +12,8 @@ Panel Concept Artwork, laid out to use the [Simple musical instrument design pla
 
 This is a robust complex oscillator that provides an amazing range of sonic vistas through a Modulator that can affect the Primary Oscillator's frequency, sync, amplitude and wavefolding.  
 
+![Flowchart of module audio signal](https://songnaga.dansteeby.com/wp-content/uploads/2022/08/2cats1bag-flowchart-03.png)
+
 ## Features  
 
 ### USB-MIDI Control  
@@ -51,16 +53,10 @@ Both the Modulator and Primary Oscillators share the following features:
 
 All basic features are implemented except for implementing the planned Harmonics Knob in he wavefolder and adding CV inputs and their related attenuators/attenuverters.  These will require some hardware that I don't have on hand yet to translate Eurorack-level control voltages to the range used by the Daisy Seed.  
 
-## Issues and foibles  
+## Yet to Implement  
 
-The planned Harmonics Knob will require some math skills that I don't have yet, and is thus not yet implemented.  
+Eurorack-compatible CV input is planned, and are documented in the wiki.  
 
-Eurorack-compatible CV input is planned:  including 1 volt/octave and a secondary frequency control for each oscillator, CV inputs for frequency mod, amp mod, timbre mod, and shape mod with appropriate attenuators/attenuverters, and an external Sync input.  
+The Harmonics processor has not been implemented yet.
 
-The Daisy gets overloaded when the Modulator is in LFO mode and it is turned down to a low rate and this is used to modulate the Timbre.  I probably need to change the waveform from a polyblep to a regular triangle when it's in LFO mode. 
-
-Wavefolding a squarewave is stupid sounding.  Either change the waveforms available in the square output mode to include a sine wave or maybe when the wavefolder is enabled at all the primary OSC doesn't output a squar wave but something else (sine?) instead.  
-
-If the Harmonics Knob is difficult to implement, it would great to add Amp controls to the Timbre section instead (or maybe both features if they'll fit).  
-
-
+An overhaul of the Primary Oscillator's waveshape feature is planned, and is documented in the wiki.
