@@ -49,10 +49,6 @@ Both the Modulator and Primary Oscillators share the following features:
 - **Timbre Knob** - adjusts the amount of wavefolding applied to the output of the Primary Oscillator  
 - **Symmetry Knob** - adjusts the offset of Primary Oscillator before it is sent into the wavefolder  
 
-## Current Status of Project  
-
-All basic features are implemented except for implementing the planned Harmonics Knob in he wavefolder and adding CV inputs and their related attenuators/attenuverters.  These will require some hardware that I don't have on hand yet to translate Eurorack-level control voltages to the range used by the Daisy Seed.  
-
 ## Yet to Implement  
 - Eurorack-compatible CV input is planned, and are documented in the wiki.  
 - The Harmonics processor has not been implemented yet.  
