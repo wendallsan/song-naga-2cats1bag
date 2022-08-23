@@ -1,6 +1,7 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
 #include "wavefolder.h"
+#include "harmonics.h"
 
 using namespace daisy;
 using namespace daisysp;
@@ -10,6 +11,7 @@ MidiUsbHandler midi;
 Oscillator modulator;
 VariableShapeOscillator primary;
 Wavefolder fold;
+Harmonics harmonics;
 float modulatorCoarsePitchAdjust, 
 	modulatorFinePitchAdjust, 
 	modulatorFrequency, 
@@ -23,6 +25,7 @@ float modulatorCoarsePitchAdjust,
 	folderTimbreAdjust,
 	folderSymmetryAdjust,
 	ampLevel,
+	harmonicsAdjust,
 	chaosAdjust,
 	lastFinalModulatorFrequency = 0.0,
 	lastPrimarySignal = 0.5,
@@ -42,6 +45,7 @@ enum AdcChannel {
 	modulatorTimbreModKnob,
 	folderTimbreKnob,
 	folderSymmetryKnob,
+	harmonicsKnob,
 	chaosKnob,
 	NUM_ADC_CHANNELS
 };
@@ -67,7 +71,7 @@ void AudioCallback(
 		// ( THIS IS DONE IN THE AUDIOCALLBACK )
 		primary.SetFreq( finalModulatorFrequency );	
 		float modulatorSignal = modulator.Process();
-		float frequencyModSignal = modulatorSignal * modulatorFrequencyModAmountAdjust * 10.0;
+		float frequencyModSignal = modulatorSignal * ( modulatorFrequencyModAmountAdjust * 10.0 );
 		float ampModSignal = modulatorSignal * modulatorAmpModAmountAdjust;
 		float finalPrimaryFrequency = fclamp( primaryFrequency * ( frequencyModSignal + 1.0 ), 0.01, 20000.0  );
 		primary.SetSyncFreq( finalPrimaryFrequency );
@@ -80,6 +84,7 @@ void AudioCallback(
 		finalSignal = finalSignal * ( ampModSignal + 0.5 ); // MODIFY AMPLITUDE ACCORDING TO AMP MOD
 		finalSignal = finalSignal + fmap( folderSymmetryAdjust, -1.0, 1.0 ); // OFFSET SIGNAL ACCORDING TO SYMMETRY
 		finalSignal = fold.Process( finalSignal ); // MODIFY THROUGH WAVEFOLDER
+		finalSignal = harmonics.Process( finalSignal );  // MODIFY THROUGH HARMONICS
 		out[0][i] = modulatorSignal; // SEND THE MODULATOR SIGNAL TO OUTPUT 1
 		out[1][i] = finalSignal; // SEND THE PRIMARYSIGNAL TO OUTPUT 2
 	}
@@ -113,6 +118,7 @@ void handleKnobs(){
 	folderTimbreAdjust = hw.adc.GetFloat( folderTimbreKnob );
 	folderSymmetryAdjust = hw.adc.GetFloat( folderSymmetryKnob );
 	folderTimbreModAdjust = hw.adc.GetFloat( modulatorTimbreModKnob );	
+	harmonicsAdjust = hw.adc.GetFloat( harmonicsKnob );	
 	chaosAdjust = hw.adc.GetFloat( chaosKnob );	
 }
 float setCoarseFrequency( float baseFrequency, float adjust ){ // COARSE ADJUST THE FREQUENCY BY +/- 2 OCTAVES
@@ -147,7 +153,7 @@ int main( void ){
 	hw.Init();
 	modulatorRangeSelectButton.Init( hw.GetPin( 26 ), 100 );
 	modulatorWaveSelectButton.Init( hw.GetPin( 27 ), 100 );
-	primaryWaveSelectButton.Init( hw.GetPin( 28 ), 100 );
+	primaryWaveSelectButton.Init( hw.GetPin( 14 ), 100 );
 	syncSelectButton.Init( hw.GetPin( 29 ), 100 );
 	MidiUsbHandler::Config midiConfig;
 	midiConfig.transport_config.periph = MidiUsbTransport::Config::INTERNAL;
@@ -156,6 +162,7 @@ int main( void ){
 	float sampleRate = hw.AudioSampleRate();
 	primary.Init( sampleRate );
 	modulator.Init( sampleRate );
+	harmonics.Init( sampleRate );
 	hw.StartAudio( AudioCallback );
 	AdcChannelConfig adcConfig[ NUM_ADC_CHANNELS ];
     adcConfig[ modulatorCoarsePitchKnob ].InitSingle( daisy::seed::A0 );
@@ -168,7 +175,8 @@ int main( void ){
     adcConfig[ folderTimbreKnob ].InitSingle( daisy::seed::A6 );
     adcConfig[ folderSymmetryKnob ].InitSingle( daisy::seed::A7 );
     adcConfig[ modulatorTimbreModKnob ].InitSingle( daisy::seed::A9 );
-    adcConfig[ chaosKnob ].InitSingle( daisy::seed::A10 );
+    adcConfig[ harmonicsKnob ].InitSingle( daisy::seed::A10 );
+    adcConfig[ chaosKnob ].InitSingle( daisy::seed::A11 );
     hw.adc.Init( adcConfig, NUM_ADC_CHANNELS );
     hw.adc.Start();
 	while( true ){
@@ -187,6 +195,7 @@ int main( void ){
 			modulator.WAVE_SIN :
 			modulator.WAVE_POLYBLEP_TRI
 		);
+		harmonics.SetBalance( harmonicsAdjust );
 		System::Delay( 1 );
 	}
 }
