@@ -1,7 +1,8 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
-#include "wavefolder.h"
-#include "harmonics.h"
+#include "Wavefolder.h"
+#include "Harmonics.h"
+#include "ShapedOsc.h"
 
 using namespace daisy;
 using namespace daisysp;
@@ -9,7 +10,8 @@ using namespace daisysp;
 DaisySeed hw;
 MidiUsbHandler midi;
 Oscillator modulator;
-VariableShapeOscillator primary;
+// VariableShapeOscillator primary;
+ShapedOsc primary;
 Wavefolder fold;
 Harmonics harmonics;
 float modulatorCoarsePitchAdjust, 
@@ -65,28 +67,36 @@ void AudioCallback(
 		lastFinalModulatorFrequency = finalModulatorFrequency;
 
 		modulator.SetFreq( finalModulatorFrequency );
+		/* 
+		BUG: THERE IS A 'JITTER' IN THE MOD OSC WHEN THE CHAOS KNOB IS AT ZERO
+		THIS JITTER GOES AWAY IF YOU ADJUST THE CHAOS KNOB UP JUST A LITTLE.
+		THIS ONLY OCCURS ON WHEN MOD WAVEFORM SELECT IS SET TO SINE.
+		*/
 		// ALSO SET FREQUENCY ON PRIMARY OSC FOR SYNC PURPOSES
-		// NOTE THAT WE DON'T HEAR THIS OSCILLATOR, WE JUST HEAR THE 
-		// OSCILLATOR WHOSE FREQ IS SET USING THE SetSyncFreq METHOD
-		// ( THIS IS DONE IN THE AUDIOCALLBACK )
-		primary.SetFreq( finalModulatorFrequency );	
+		/* 
+		NOTE THAT WE DON'T HEAR THIS OSCILLATOR, WE JUST HEAR THE 
+		OSCILLATOR WHOSE FREQ IS SET USING THE SetSyncFreq METHOD
+		( THIS IS DONE IN THE AUDIOCALLBACK )
+		*/ 
+		primary.SetSyncFreq( finalModulatorFrequency );	
 		float modulatorSignal = modulator.Process();
 		float frequencyModSignal = modulatorSignal * ( modulatorFrequencyModAmountAdjust * 10.0 );
 		float ampModSignal = modulatorSignal * modulatorAmpModAmountAdjust;
-		float finalPrimaryFrequency = fclamp( primaryFrequency * ( frequencyModSignal + 1.0 ), 0.01, 20000.0  );
-		primary.SetSyncFreq( finalPrimaryFrequency );
+		// CLAMP THE PRIMARY OSC FREQUENCY AT AUDIO RANGES (20HZ MIN)
+		float finalPrimaryFrequency = fclamp( primaryFrequency * ( frequencyModSignal + 1.0 ), 20.0, 20000.0  );
+		primary.SetFreq( finalPrimaryFrequency );
 		float finalFold = folderTimbreAdjust + ( (  folderTimbreModAdjust / 2.0 ) * modulatorSignal ) ;
 		finalFold = fmap( finalFold, 1.0, 10.0 ); // MAP finalFold TO A RANGE BETWEEN 1 AND 10
 		fold.SetGain( finalFold ); // SET FOLD GAIN		
-		float finalSignal = primary.Process(); // GET THE PRIMARY OSC SIGNAL
-		lastPrimarySignal = finalSignal; // STORE THE SIGNAL AT THIS POINT FOR CHAOS MODULATION PURPOSES
+		float primarySignal = primary.Process( modulator.IsEOC() ); // GET THE PRIMARY OSC SIGNAL
+		lastPrimarySignal = primarySignal; // STORE THE SIGNAL AT THIS POINT FOR CHAOS MODULATION PURPOSES
 		lastFinalPrimaryFrequency = finalPrimaryFrequency;		
-		finalSignal = finalSignal * ( ampModSignal + 0.5 ); // MODIFY AMPLITUDE ACCORDING TO AMP MOD
-		finalSignal = finalSignal + fmap( folderSymmetryAdjust, -1.0, 1.0 ); // OFFSET SIGNAL ACCORDING TO SYMMETRY
-		finalSignal = fold.Process( finalSignal ); // MODIFY THROUGH WAVEFOLDER
-		finalSignal = harmonics.Process( finalSignal );  // MODIFY THROUGH HARMONICS
+		primarySignal = primarySignal * ( ampModSignal + 0.5 ); // MODIFY AMPLITUDE ACCORDING TO AMP MOD
+		primarySignal = primarySignal + fmap( folderSymmetryAdjust, -1.0, 1.0 ); // OFFSET SIGNAL ACCORDING TO SYMMETRY
+		primarySignal = fold.Process( primarySignal ); // MODIFY THROUGH WAVEFOLDER
+		primarySignal = harmonics.Process( primarySignal );  // MODIFY THROUGH HARMONICS
 		out[0][i] = modulatorSignal; // SEND THE MODULATOR SIGNAL TO OUTPUT 1
-		out[1][i] = finalSignal; // SEND THE PRIMARYSIGNAL TO OUTPUT 2
+		out[1][i] = primarySignal; // SEND THE PRIMARYSIGNAL TO OUTPUT 2
 	}
 }
 void handleMidi(){
@@ -189,12 +199,13 @@ int main( void ){
 		setModulatorFrequency();
 		setPrimaryFrequency();
 		// SET THE PRIMARY WAVEFORM ACCORDING TO THE BUTTON STATE
-		primary.SetWaveshape( primaryWaveSelectButton.Pressed()? 1.0 : 0.0 );		
+		primary.SetWaveshape( primaryWaveshapeAdjust );
 		// SET THE MODULATOR WAVEFORM ACCORDING TO THE BUTTON STATE
 		modulator.SetWaveform( modulatorWaveSelectButton.Pressed()? 
 			modulator.WAVE_SIN :
 			modulator.WAVE_POLYBLEP_TRI
 		);
+		primary.SetWaveformMode( primaryWaveSelectButton.Pressed() );
 		harmonics.SetBalance( harmonicsAdjust );
 		System::Delay( 1 );
 	}

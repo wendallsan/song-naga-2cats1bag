@@ -2,7 +2,7 @@
 TARGET = 2Cats1Bag
 
 # Sources
-CPP_SOURCES = 2Cats1Bag.cpp wavefolder.cpp harmonics.cpp
+CPP_SOURCES = 2Cats1Bag.cpp Wavefolder.cpp Harmonics.cpp ShapedOsc.cpp
 
 # Library Locations
 LIBDAISY_DIR = ../../libDaisy/

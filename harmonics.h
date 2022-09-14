@@ -8,8 +8,7 @@
 
 /** @file harmonics.h */
 
-namespace daisysp
-{
+namespace daisysp {
 /**  
        @brief Harmonics
        @date August 2022

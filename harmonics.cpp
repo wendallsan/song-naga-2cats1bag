@@ -1,6 +1,6 @@
 #include "daisy_seed.h"
 #include "daisysp.h"
-#include "harmonics.h"
+#include "Harmonics.h"
 #include <algorithm>
 
 namespace daisysp
